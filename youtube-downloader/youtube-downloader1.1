@@ -1,0 +1,98 @@
+#!/bin/bash
+#download, aufs Handy und aushöhlen
+mkdir -p --verbose ~/.youtube-downloader_library /mnt/2/youtube_audio
+cd ~/.youtube-downloader_library/
+touch youtube_list.txt downloaded.txt
+
+
+if [[ $1 == "--help" ]]
+then
+		  echo "for extern hdd: mount hdd on /mnt/2";
+		  echo "for smartphone listener: make shure adb shell works and directory structure fits to mine;)"
+		  exit;
+fi
+
+
+if [[ $1 == "--clean" ]]
+then
+		  echo "<<<<<<<<<<<<<<<__________________jahresputz_______>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>";
+		  mv --verbose youtube_list.txt downloaded.txt /tmp/
+		  rm *
+		  cp --verbose /tmp/youtube_list.txt /tmp/downloaded.txt .
+		  exit;
+fi
+
+if [[ $1 == "--lost-downloaded-archive" ]]
+then
+		  for i in *; 
+		  do touch ~/.youtube-downloader_library/"$(echo "$i" |  awk -F '.mp3' '{print $1}')"; 
+		  done
+		  exit;
+fi
+
+grep 'http*' ${home}youtube_list.txt > /tmp/youtube_list.txt
+cp /tmp/youtube_list.txt ${home}youtube_list.txt
+quantity_all_lines=$(wc -l youtube_list.txt | cut -f 1 -d ' ')
+for (( i=1; i<=$quantity_all_lines; i++ ))
+do
+		  random_link=$(cat youtube_list.txt | awk NR==$((1 + RANDOM % $quantity_all_lines)))
+		  echo $random_link
+		  youtube-dl --ignore-errors --playlist-random -f 139/249/250/140/251/ --download-archive downloaded.txt --output '~/.youtube-downloader_library/%(title)s.%(ext)s' --exec '
+		  		ffmpeg -i {} -y -b:a 40k {}.mp3;
+		  		rm --verbose {}
+				filename=$(echo {} | cut -d "/" -f 5 )
+				echo "convertion finished."
+			   echo "filename = ${filename}.mp3".
+			   echo "looking for smartphone to connect with per adb."
+				if [ "found" == "$(adb shell "if [ -d storage ]; then echo "found"; else echo "NULL"; fi;")" ]
+				then
+						  echo "smartphone is reachable";
+				fi;
+				if [ "NULL" == "$(adb shell "if [ -f "/storage/self/primary/Music/${filename}.mp3" ]; then echo "exists"; else echo "NULL"; fi;")" ]
+				then
+						  echo "file is not on smartphone"
+		  				  adb_pushes=$(cat adb_count.txt)
+		  				  adb push {}.mp3 /storage/self/primary/Music/
+						  let adb_pushes++; 
+						  echo $adb_pushes > adb_count.txt;
+				elif [ "exists" == "$(adb shell "if [ -f "/storage/self/primary/Music/${filename}.mp3" ]; then echo "exists"; else echo "NULL"; fi;")" ]
+	 			then
+						  echo "file is already on smartphone"
+				else 
+						  echo "plug in your smartphone to record the stream"
+				fi
+			   echo "looking for dev on /mnt/2 to move all mp3 files to."
+		  		for i in *mp3;		#!warning foreign mp3s during creation are here also handled!
+		  		do
+					 filename=$(echo $i | cut -d "/" -f 6 | cut -d "." -f 1)
+					 if [ -d "/mnt/2/youtube_audio" ];
+		  			 then
+								echo "dev on /mnt/2 found."
+								###if there is no other file than the mp3 file there you can move the ready file########################################################
+								duringCreation=(${filename}*[!3])
+								
+								if [ ! -f "/mnt/2/youtube_audio/${i}" ] && [ ! -f ${duringCreation} ]
+								then
+										  echo "file doesnt exist on /mnt/2"
+										  echo "file is not during creation"
+										  hdd_pushed=$(cat hdd_pushed.txt);
+										  mv "$i" /mnt/2/youtube_audio;
+										  echo "moving file >> /mnt/2/youtube_audio"
+										  let hdd_pushed++;
+										  echo "with this file total, $hdd_pushed files has been moved to the device mounted on /mnt/2"
+										  echo "$hdd_pushed" > hdd_pushed.txt;
+							   	elif [ -f "/mnt/2/youtuibe_audio/${i}" ];
+								then
+										  echo "skipping: file is been copying by another process on /mnt/2";
+										  echo "or hasnt finished and is lying there until you delete everything by running --clean"
+								elif [ -f ${duringCreation} ]
+								then
+										  echo "skipping: file is in conversion from video to audio by another process."
+								fi;
+				 	 else
+								echo "mount on /mnt/2 to let move it to there"
+					 fi;
+		  done;9090
+		  ' $random_link
+done
+echo "if nothing happend maybe your youtube:ist.txt died. this happens maybe if a programm is deleting the list while another is copying it"

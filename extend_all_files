@@ -1,0 +1,13 @@
+#!/bin/python3
+
+import os, shutil, sys
+
+if sys.argv[1] == '--help':
+	print('usage: give wanted prefix as argument')
+
+for folders, subfolders, filenames in os.walk(os.getcwd()):
+	for filename in filenames:
+		source = os.path.join(os.getcwd(), filename)
+		destination = source + sys.argv[1]
+		shutil.move(source, destination)
+		print('changed to' + destination)

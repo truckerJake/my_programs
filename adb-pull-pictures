@@ -1,0 +1,43 @@
+# by Cyberw1nd licensed under Creative Commons.
+#! /bin/bash
+
+to="/tmp/adb-pull-pictures_from_smartphone/"
+rm -r --verbose "$to" "/tmp/bufferOfRenamedImages"
+mkdir --verbose "/tmp/bufferOfRenamedImages"
+adb pull /sdcard/DCIM "$to"
+find $to -name ".thumbnails" -exec rm -r --verbose {} \;
+./directory_killer $to 
+currentImage=$(find $to | awk NR==2)
+while [[ $currentImage != "" ]]
+do
+	currentImage=$(find $to | awk NR==2)
+	quantityFiles=$(find "$to" -type f | wc -l)
+	echo "remaining images: $quantityFiles:"
+	read -p "new quality [k]eep [m]inimize" newQualiy
+	if [[ $newQuality == "m" ]]
+	then
+		mogrify -verbose -resize 300 -strip -quality 60 "$currentImage"
+	fi
+	currentImageExtension=$(echo "$currentImage" | cut -d '.' -f2)
+	feh "$currentImage"
+	read -p "set new filename..." newName
+	newFilename="/tmp/bufferOfRenamedImages/${newName}.${currentImageExtension}"
+	if [[ $newName == "remove" ]]
+	then
+		rm --verbose "$currentImage"
+	else
+		mv --verbose "$currentImage" "$newFilename"
+	fi
+	currentImage=$(find $to | awk NR==2)
+done
+read -p "remove pictures on phone? [y/n] ..." answer
+if [[ $answer == 'y' ]]
+then
+	adb shell "rm -r --verbose /sdcard/DCIM/"
+	echo "removed"
+fi
+read -p "move renamed Images into the directory '~/Pictures'? [y/n] ..." answer
+if [[ $answer == 'y' ]]
+then
+	mv --verbose /tmp/bufferOfRenamedImages/* ~/Pictures
+fi

@@ -1,0 +1,24 @@
+# dependency: git: 2do(add profile)/directory_killer
+# by Cyberw1nd licensed under Creative Commons.
+#! /bin/bash
+
+from1="/storage/emulated/legacy/DCIM/"
+from2="/storage/emulated/0/DCIM/"
+to="/tmp/adb-pull-pictures_from_smartphone/"
+
+if [[ $1 == "--help" ]]
+then
+	echo "no args. pushes into folder /tmp/adb-pull-pictures and opens shotwell to rename them"
+	exit 1
+fi
+rm -r --verbose $to
+adb pull $from1 $to 
+adb pull $from2 $to 
+directory_killer $to 
+find $to -exec echo {} \; -exec tesseract {} stdout \;
+read -p "remove pictures on phone? [y/n]" answer
+if [[ $answer == 'y' ]]
+then
+	adb shell "rm -r $from1"  
+	adb shell "rm -r $from2" 
+fi

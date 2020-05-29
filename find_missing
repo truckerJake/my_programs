@@ -1,0 +1,33 @@
+#!/bin/bash
+
+source_dir="$1";
+root_target="$2";
+find_source_result=$(find $source_dir | rev | cut -d '/' -f 1 | rev | sort)
+find_target_result=$(find $root_target | rev | cut -d '/' -f 1 | rev | sort)
+countSourceFiles=$(echo "$find_source_result" | wc -l)
+countTargetFiles=$(echo "$find_target_result" | wc -l)
+echo $countSourceFiles
+for iSource in $(seq 0 1 $countSourceFiles)
+do
+	found=0
+	for iTarget in $(seq 0 1 $countTargetFiles) 
+	do
+		fileSource=$(echo "$find_source_result" | awk NR==$iSource)
+		fileTarget=$(echo "$find_target_result" | awk NR==$iTarget)
+#		echo "$iTarget/$iSource"
+		if [ "$fileSource" == "$fileTarget" ]
+		then
+			found=1
+			echo ">>>)))))))>>>find $source_dir -> position $iSource has filename $fileSource"
+			echo ">>>)))))))>>>and is equal to "
+			echo ">>>)))))))>>>find $root_target -> position $iTarget has filename $fileTarget"
+			echo ">>>)))))))>>>"
+			break;
+		fi
+	done
+	if [ $found -eq 0 ]
+	then
+		echo "<<<<((((((<<<couldnt find the file $fileSource"
+		echo "<<<<((((((<<<under the root $root_target"
+	fi
+done

@@ -1,0 +1,52 @@
+#! /usr/bin/python3
+
+import shutil, os, re, sys
+
+def ingrement_same_filenames(actionPath, filename):
+    fileNameIngrementSuffix = 2
+    destination = os.path.join(actionPath, filename)
+    oldDestination = destination
+    while os.path.exists(destination) == True:
+        #split destinations name from extensions name
+        try:
+            extensionKillerMask = re.compile(r'(.*)\.(.*)')
+            mo = extensionKillerMask.search(filename)
+            newFilename = (mo.group(1) + ('%.2d' % fileNameIngrementSuffix) + ('.') + mo.goup(2))
+        except AttributeError:
+            newFilename = filename + ('%.2d' % fileNameIngrementSuffix)
+        destination = os.path.join(actionPath, newFilename)
+        fileNameIngrementSuffix = fileNameIngrementSuffix + 1
+    return destination
+        
+
+def directory_killer(actionPath):
+    for currentTop, subfolders, filenames in os.walk(actionPath):
+        for filename in filenames:
+            if currentTop != actionPath:
+                #rename multiple files to deteriorate overwriting files with the same name
+                destination = os.path.join(actionPath, filename)
+                if os.path.exists(destination):
+                    currentFileOld = os.path.join(currentTop, filename) 
+                    destination = ingrement_same_filenames(actionPath, filename)
+                    print('renamed\n%s\nto\n%s\n' % (currentFileOld, destination))
+                currentFile = os.path.join(currentTop, filename)
+                shutil.move(currentFile, destination)
+                print('\nmoved %s\nto\n%s\n' % (currentFile, destination))
+    for currentTop, subfolders, filenames in os.walk(actionPath, topdown=False):
+        for subfolder in subfolders:
+            currentSubfolder = os.path.join(currentTop, subfolder)
+            os.rmdir(currentSubfolder)
+            print(os.path.join(actionPath, currentSubfolder) + " has been deleted.")
+
+
+
+try:
+    if os.path.exists(sys.argv[1]) == True:
+        directory_killer(sys.argv[1])
+    else:
+        print("path doesnt exist.")
+except IndexError:
+    print("provide a destination.")
+
+
+

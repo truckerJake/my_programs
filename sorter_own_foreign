@@ -1,0 +1,34 @@
+#!/bin/bash
+mkdir -p own money money/fake_faktory money/rest
+
+for i in *;
+do
+	echo "$i"
+	read -p "[o]wn [m]oney [r]emove [less] [p]ublic", answer
+	if [ $answer == "o" ]
+	then
+		mv --verbose "$i" own/
+	elif [ $answer == "m" ]
+	then
+		read -p "[f]ake_faktory [r]est", answer
+		if [ $answer == "f" ]
+		then
+			mv --verbose "$i" money/fake_faktory/
+		elif [ $answer == "r" ]
+		then
+			mv --verbose "$i" money/rest/
+		fi
+	elif [ $answer == "r" ]
+	then
+		rm --verbose "$i"
+	elif [ $answer == "less" ]
+	then
+		clear
+		less "$i"
+	elif [ $answer == "p" ]
+	then
+		mv --verbose "$i" ../public/
+
+
+	fi
+done

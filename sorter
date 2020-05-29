@@ -1,0 +1,44 @@
+#!/usr/bin/bash
+mkdir -p sorter sorter/images sorter/images/organicFinal sorter/images/organic2reduce sorter/images/documentFinal sorter/images/document2reduce
+mkdir -p sorter/videos sorter/videos/2reduce sorter/videos/final
+
+for i in $(find . -maxdepth 1 -name '*.jpg' -o -name ' *.png' -o -name '*.jpeg')
+do
+	echo "File: $i"
+	feh --auto-zoom "$i"
+	read -p "[a] organicKeep [s] organic2reduce [d] documentKeep [f] document2reduce [g] remove ...your choise:   	" answer; 
+	if [ $answer == "a" ]; 
+	then 
+		mv --verbose "$i" ./sorter/images/organicFinal/; 
+	elif [ $answer == "s" ]; 
+	then 
+		mv --verbose "$i" ./sorter/images/organic2reduce/; 
+	elif [ $answer == "d" ]; 
+	then 
+		mv --verbose "$i" ./sorter/images/documentFinal/; 
+	elif [ $answer == "f" ]; 
+	then
+		mv --verbose "$i" ./sorter/images/document2reduce/;
+	elif [ $answer == "g" ]; 
+	then 
+		rm --verbose "$i"; 
+	fi;
+done
+
+for i in $(find -maxdepth 1 -name '*avi' -o -name '*mp4' -o -name '*3gp')
+do
+	echo "File: $i"
+	cvlc --no-video-title-show "$i"
+	read -p "[a] keep [s] reduce [d] remove ...your choise:   	" answer; 
+	
+	if [ $answer == "a" ]; 
+	then 
+		mv --verbose "$i" ./sorter/videos/final/; 
+	elif [ $answer == "s" ]; 
+	then 
+		mv --verbose "$i" ./sorter/videos/2reduce/; 
+	elif [ $answer == "d" ]; 
+	then 
+		rm --verbose "$i"; 
+	fi;
+done

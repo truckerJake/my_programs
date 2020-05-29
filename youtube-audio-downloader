@@ -1,0 +1,22 @@
+#!/bin/bash
+cd /home/ceviu/.youtube-downloader_library/raw_audio/
+mkdir /tmp/youtube-lists
+
+if [[ $1 == "--clean-list" ]]
+then
+for i in {21..38}; do cat .youtube-downloader_library/youtube_list.txt | awk NR==$i > foo.txt; youtube-dl --ignore-errors --download-archive .youtube-downloader_library/downloaded.txt --batch-file foo.txt; read -p '?' answer; if [ $answer == "k" ]; then cat .youtube-downloader_library/youtube_list.txt | awk NR==$i >> keep.txt; else cat .youtube-downloader_library/youtube_list.txt | awk NR==$i >> done.txt; fi; done 
+
+
+fi
+
+
+quantity_all_lines=$(wc -l ../youtube_list.txt | cut -f 1 -d ' ')
+for (( i=1; i<=$quantity_all_lines; i++ ))
+
+do
+#                  random_link=$(cat ../youtube_list.txt | awk NR==$((1 + RANDOM % $quantity_all_lines)))
+	
+	cat ../youtube_list.txt | awk NR==$i > "/tmp/youtube-lists/${i}.txt"
+	qterminal -e youtube-dl --ignore-errors -f worstaudio --download-archive ../downloaded.txt --batch-file "/tmp/youtube-lists/${i}.txt" &
+done
+
