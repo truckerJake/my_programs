@@ -18,16 +18,16 @@ do
 		if [ "$fileSource" == "$fileTarget" ]
 		then
 			found=1
-			echo ">>>)))))))>>>find $source_dir -> position $iSource has filename $fileSource"
-			echo ">>>)))))))>>>and is equal to "
-			echo ">>>)))))))>>>find $root_target -> position $iTarget has filename $fileTarget"
-			echo ">>>)))))))>>>"
+			echo "found $source_dir -> position $iSource has filename $fileSource"
+			echo "and is equal to "
+			echo "$root_target -> position $iTarget has filename $fileTarget"
+			echo ""
 			break;
 		fi
 	done
 	if [ $found -eq 0 ]
 	then
-		echo "<<<<((((((<<<couldnt find the file $fileSource"
-		echo "<<<<((((((<<<under the root $root_target"
+		echo "!!!!!!!!!!!!!!!!!<<<<((((((<<<couldnt find the file $fileSource"
+		echo "!!!!!!!!!!!!!!!!!<<<<((((((<<<under the root $root_target"
 	fi
 done
