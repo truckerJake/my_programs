@@ -1,0 +1,9 @@
+#!/bin/bash
+quantity=$1
+for i in $(seq 1 1 $quantity)
+do 
+	names="/home/ceviu/Documents/names.txt"
+	random=$((1 + RANDOM % $(cat $names | wc -l)))
+	cat $names | awk NR==$random | tr -d "[:space:]"
+	echo ""
+done
