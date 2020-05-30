@@ -2,7 +2,7 @@
 mkdir -p sorter sorter/images sorter/images/organicFinal sorter/images/organic2reduce sorter/images/documentFinal sorter/images/document2reduce
 mkdir -p sorter/videos sorter/videos/2reduce sorter/videos/final
 
-for i in $(find . -maxdepth 1 -name '*.jpg' -o -name ' *.png' -o -name '*.jpeg')
+for i in ls *jpg *jpeg *png
 do
 	echo "File: $i"
 	feh --auto-zoom "$i"
@@ -25,7 +25,7 @@ do
 	fi;
 done
 
-for i in $(find -maxdepth 1 -name '*avi' -o -name '*mp4' -o -name '*3gp')
+for i in ls *avi *3gp *webm *mpeg
 do
 	echo "File: $i"
 	cvlc --no-video-title-show "$i"

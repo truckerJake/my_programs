@@ -1,33 +1,61 @@
 #!/bin/bash
+rm found.txt
 
 source_dir="$1";
 root_target="$2";
-find_source_result=$(find $source_dir | rev | cut -d '/' -f 1 | rev | sort)
-find_target_result=$(find $root_target | rev | cut -d '/' -f 1 | rev | sort)
-countSourceFiles=$(echo "$find_source_result" | wc -l)
-countTargetFiles=$(echo "$find_target_result" | wc -l)
-echo $countSourceFiles
-for iSource in $(seq 0 1 $countSourceFiles)
+echo "generating filePathList of directory '$source_dir'"
+find $source_dir > source_paths.txt
+echo "generating filePathList of directory '$root_target'"
+find $root_target > target_paths.txt
+source_lengh=$(cat source_paths.txt | wc -l)
+for iSource in $(seq 1 1 $source_lengh)
 do
-	found=0
-	for iTarget in $(seq 0 1 $countTargetFiles) 
-	do
-		fileSource=$(echo "$find_source_result" | awk NR==$iSource)
-		fileTarget=$(echo "$find_target_result" | awk NR==$iTarget)
-#		echo "$iTarget/$iSource"
-		if [ "$fileSource" == "$fileTarget" ]
-		then
-			found=1
-			echo "found $source_dir -> position $iSource has filename $fileSource"
-			echo "and is equal to "
-			echo "$root_target -> position $iTarget has filename $fileTarget"
-			echo ""
-			break;
-		fi
-	done
-	if [ $found -eq 0 ]
+	filename=$(cat source_paths.txt | awk NR==$iSource | rev | cut -d '/' -f 1 | rev | sort)
+	echo "$filename" >> source_names.txt
+	if grep -q "$filename" target_paths.txt 
 	then
-		echo "!!!!!!!!!!!!!!!!!<<<<((((((<<<couldnt find the file $fileSource"
-		echo "!!!!!!!!!!!!!!!!!<<<<((((((<<<under the root $root_target"
+		path=$(grep "$filename" target_paths.txt)
+		echo "$path" >> found.txt
+		isFound=$path
+	else
+		path=$(grep "$filename" source_paths.txt)
+		echo "$path" >> missing.txt
+		isFound=$path
+	fi
+	if [ $(expr $iSource % 64) == 0 ] #useroutput
+	then
+		clear;
+		echo "generating filelist of directory '$source_dir' ...done"
+		echo "generating filelist of directory '$root_target' ...done"
+		echo "converting filelist of directory '$source_dir':--->"
+		echo "    task: extract filename from fullpath: "
+		echo "    grepping for filename $iSource/$source_lengh == $filename"
+		echo "    in the filePathList of directory $root_target == $isFound"
+		echo "lists are stored in the files 'found.txt' and 'missing.txt'"
+
 	fi
 done
+
+
+
+
+#target_lengh=$(cat target.txt | wc -l)
+#for iTarget in $(seq 1 1 $target_lengh)
+#do
+#	filename=$(cat target.txt | awk NR==$iTarget |  rev | cut -d '/' -f 1 | rev | sort)
+#	echo "$filename" >> target.txt
+#	if [ $(expr $iTarget % 64) == 0 ]
+#	then
+#		clear;
+#		echo "generating filelist of directory '$source_dir' ...done"
+#		echo "generating filelist of directory '$root_target' ...done"
+#		echo "converting filelist of directory '$source_dir' ...done"
+#		echo "grepping for filenames of the files onder the root '$source_dir' ...done"
+#		echo "in the list of the filepaths onder the root '$root_target' ...done"
+#		echo "converting filelist of directory '$root_target':--->"
+#		printf "task: extract filename from fullpath: "
+#		printf "$iTarget/$target_lengh"
+#	fi
+#done
+#echo " ...done"
+
