@@ -20,17 +20,14 @@ do
 	echo "$filename" >> source_names.txt
 	if grep -q "$filename" target_paths.txt 
 	then
-		path="$(grep "$filename" target_paths.txt)"
-		echo "$path" >> found.txt
+		echo "$filename" >> found.txt
 		isFound="found"
 		let iFound++
 	else
-		path=$(grep "$filename" source_paths.txt)
-		echo "$path" >> missing.txt
+		cat source_paths.txt | awk NR==$iSource >> missing.txt
 		isFound="missing"
 		let iMissing++
 	fi
-
 	if [ $(expr $iSource % 64) == 0 ] #useroutput
 	then
 		clear;
